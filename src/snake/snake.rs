@@ -12,7 +12,7 @@ pub struct Snake{
 }
 
 impl Snake{
-    fn new() -> Snake{
+    pub fn new() -> Snake{
         Snake{
             next: None,
             color: Color::White,
@@ -20,13 +20,14 @@ impl Snake{
         }
     }
     
-    fn with_color(color: Color) -> Snake{
+    pub fn with_color(color: Color) -> Snake{
         Snake{
             next: None,
             color: color,
             character: '\u{25A0}'
         }
     }
+
 }
 
 impl Display for Snake{
