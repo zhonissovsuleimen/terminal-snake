@@ -1,19 +1,18 @@
 use std::io::Stdout;
 use crossterm::{
     queue,
-    Result,
     style::{ Print, Color, SetForegroundColor}
 };
 use crate::snake::cell::Display;
 
-struct Food{}
+pub struct Food{}
 
 impl Display for Food{
-    fn display(&self, stdout: &mut Stdout) -> Result<()>{
+    fn display(&self, stdout: &mut Stdout){
         queue!(
             stdout,
             SetForegroundColor(Color::Yellow),
             Print('+')
-        )
+        ).expect("Error while displaying food character")
     }
 } 

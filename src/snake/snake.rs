@@ -1,7 +1,6 @@
 use std::io::Stdout;
 use crossterm::{
     queue,
-    Result,
     style::{Print, Color, SetForegroundColor}
 };
 use crate::snake::cell::Display;
@@ -31,11 +30,11 @@ impl Snake{
 }
 
 impl Display for Snake{
-    fn display(&self, stdout: &mut Stdout) -> Result<()>{
+    fn display(&self, stdout: &mut Stdout){
         queue!(
             stdout,
             SetForegroundColor(self.color),
             Print(self.character)
-        )
+        ).expect("Error while displaying snake character");
     }
 }
