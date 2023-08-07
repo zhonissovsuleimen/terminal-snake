@@ -8,13 +8,13 @@ use crossterm::{
 };
 
 mod snake;
-use snake::game_grid::GameGrid;
+use snake::game::Game;
 
 fn main() {
     let mut stdout = stdout();
     
     const TICK_DELAY_MS: u64 = 250; 
-    let game = GameGrid::new(80, 45);
+    let game = Game::new(80, 45);
 
     hide_cursor(&mut stdout);
     //game loop
