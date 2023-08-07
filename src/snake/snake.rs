@@ -7,17 +7,17 @@ use crossterm::{
 use super::direction::Direction;
 
 pub struct Snake{
-    x: u32,
-    y: u32,
-    x_limit: u32,
-    y_limit: u32,
+    pub x: u16,
+    pub y: u16,
+    x_limit: u16,
+    y_limit: u16,
     direction: Direction,
     next: Option<Box<Snake>>,
     color: Color,
 }
 
 impl Snake{
-    pub fn new(x: u32, y: u32, x_limit: u32, y_limit: u32) -> Snake{
+    pub fn new(x: u16, y: u16, x_limit: u16, y_limit: u16) -> Snake{
         Snake{
             x: x,
             y: y,
@@ -29,7 +29,7 @@ impl Snake{
         }
     }
     
-    pub fn with_color(x: u32, y: u32, x_limit: u32, y_limit: u32, color: Color) -> Snake{
+    pub fn with_color(x: u16, y: u16, x_limit: u16, y_limit: u16, color: Color) -> Snake{
         Snake{
             x: x,
             y: y,
@@ -65,7 +65,7 @@ impl Snake{
         }
     }
 
-    fn move_to(&mut self, x: u32, y: u32){
+    fn move_to(&mut self, x: u16, y: u16){
         let start_x = self.x;
         let start_y = self.y;
 

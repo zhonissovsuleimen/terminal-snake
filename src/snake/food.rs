@@ -6,12 +6,12 @@ use crossterm::{
 use crate::snake::snake::Display;
 
 pub struct Food{
-    x: u32,
-    y: u32
+    pub x: u16,
+    pub y: u16
 }
 
 impl Food{
-    pub fn new(x: u32, y: u32) -> Food{
+    pub fn new(x: u16, y: u16) -> Food{
         Food{
             x: x,
             y: y

@@ -1,22 +1,25 @@
 use std::io::Stdout;
 use crossterm::{
     queue,
-    style::{Print, ResetColor}
+    style::{Print, ResetColor},
+    cursor::{SavePosition, RestorePosition, MoveTo, self}
 };
 use crate::snake::{
     snake::Snake,
     food::Food,
 };
 
+use super::snake::Display;
+
 pub struct Game{
-    pub max_width: u32,
-    pub max_height: u32,
+    pub max_width: u16,
+    pub max_height: u16,
     snake_pieces: Vec<Snake>,
     food_pieces: Vec<Food>
 }
 
 impl Game{
-    pub fn new(max_width: u32, max_height: u32) -> Game{
+    pub fn new(max_width: u16, max_height: u16) -> Game{
 
         //creating base snake
         let center_x = max_height/2;
@@ -38,12 +41,47 @@ impl Game{
     }
 
     pub fn display(&self, stdout: &mut Stdout){
-        for i in 0..self.max_height{
-            for j in 0..self.max_width{
-                todo!();
-                Self::reset_color(stdout);
+        queue!(stdout, SavePosition).expect("Error while saving cursor position");
+
+        //printing game border
+        //top bar
+        Self::print_character(stdout, '+');
+        for _ in 0..self.max_width{
+            Self::print_character(stdout, '-');
+        }
+        Self::print_character(stdout, '+');
+
+        //sides
+        for _ in 0..self.max_height{
+            Self::print_character(stdout, '|');
+            for _ in 0..self.max_width{
+                Self::print_character(stdout, ' ');
             }
+            Self::print_character(stdout, '|');
             Self::print_character(stdout, '\n');
+        }
+
+        //bottom bar
+        Self::print_character(stdout, '+');
+        for _ in 0..self.max_width{
+            Self::print_character(stdout, '-');
+        }
+        Self::print_character(stdout, '+');
+        
+        //adding food        
+        for piece in self.food_pieces.iter(){
+            queue!(stdout, RestorePosition).expect("Error while restoring position");
+            //moving cursor to food pos and adjusting for border 
+            queue!(stdout, MoveTo(piece.x + 1, piece.y + 1)).expect("Error while moving cursor");
+            piece.display(stdout);
+        }
+
+        //adding snake        
+        for piece in self.snake_pieces.iter(){
+            queue!(stdout, RestorePosition).expect("Error while restoring position");
+            //moving cursor to snake pos and adjusting for border 
+            queue!(stdout, MoveTo(piece.x + 1, piece.y + 1)).expect("Error while moving cursor");
+            piece.display(stdout);
         }
     }
 
