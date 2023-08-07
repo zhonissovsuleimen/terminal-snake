@@ -1,7 +1,7 @@
 use std::io::Stdout;
 use crossterm::{
     queue,
-    style::{ Print, Color, SetForegroundColor}
+    style::{ Print, Color, SetForegroundColor, ResetColor}
 };
 use crate::snake::snake::Display;
 
@@ -24,7 +24,8 @@ impl Display for Food{
         queue!(
             stdout,
             SetForegroundColor(Color::Yellow),
-            Print('+')
+            Print('*'),
+            ResetColor
         ).expect("Error while displaying food character")
     }
 } 

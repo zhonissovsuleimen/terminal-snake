@@ -13,15 +13,15 @@ use snake::game::Game;
 fn main() {
     let mut stdout = stdout();
     
-    const TICK_DELAY_MS: u64 = 250; 
-    let game = Game::new(80, 45);
+    const TICK_DELAY_MS: u64 = 200; 
+    let mut game = Game::new(40, 23);
 
     hide_cursor(&mut stdout);
     //game loop
     loop{
         clear_terminal(&mut stdout);
         game.display(&mut stdout);
-
+        game.make_move();
         //executing command queue 
         stdout.flush().expect("Error while flushing stdout");
         thread::sleep(Duration::from_millis(TICK_DELAY_MS));

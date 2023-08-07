@@ -1,7 +1,7 @@
 use std::io::Stdout;
 use crossterm::{
     queue,
-    style::{Print, Color, SetForegroundColor}
+    style::{Print, Color, SetForegroundColor, ResetColor}
 };
 
 use super::direction::Direction;
@@ -47,16 +47,16 @@ impl Snake{
 
         match self.direction{
             Direction::Up => {
-                self.x = (self.x - 1) % self.x_limit;
+                self.y = (self.y - 1) % self.y_limit;
             }
             Direction::Right => {
-                self.y = (self.y + 1) % self.y_limit;
-            }
-            Direction::Down => {
                 self.x = (self.x + 1) % self.x_limit;
             }
+            Direction::Down => {
+                self.y = (self.y + 1) % self.y_limit;
+            }
             Direction::Left => {
-                self.y = (self.y - 1) % self.y_limit;
+                self.x = (self.x - 1) % self.x_limit;
             }
         }
 
@@ -109,7 +109,8 @@ impl Display for Snake{
         queue!(
             stdout,
             SetForegroundColor(self.color),
-            Print('\u{25A0}')
+            Print('\u{25A0}'),
+            ResetColor
         ).expect("Error while displaying snake character");
     }
 }
