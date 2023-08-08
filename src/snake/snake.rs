@@ -12,8 +12,7 @@ pub struct Snake{
     x_limit: u16,
     y_limit: u16,
     direction: Direction,
-    next: Option<Box<Snake>>,
-    color: Color,
+    color: Color
 }
 
 impl Snake{
@@ -24,7 +23,6 @@ impl Snake{
             x_limit: x_limit,
             y_limit: y_limit,
             direction: Direction::Right,
-            next: None,
             color: Color::White
         }
     }
@@ -36,32 +34,7 @@ impl Snake{
             x_limit: x_limit,
             y_limit: y_limit,
             direction: Direction::Right,
-            next: None,
             color: color
-        }
-    }
-
-    pub fn make_move(&mut self){
-        let start_x = self.x;
-        let start_y = self.y;
-
-        match self.direction{
-            Direction::Up => {
-                self.y = (self.y - 1) % self.y_limit;
-            }
-            Direction::Right => {
-                self.x = (self.x + 1) % self.x_limit;
-            }
-            Direction::Down => {
-                self.y = (self.y + 1) % self.y_limit;
-            }
-            Direction::Left => {
-                self.x = (self.x - 1) % self.x_limit;
-            }
-        }
-
-        if let Some(next_body) = self.next.as_mut() {
-            next_body.move_to(start_x, start_y);
         }
     }
 
@@ -71,10 +44,6 @@ impl Snake{
 
         self.x = x;
         self.y = y; 
-
-        if let Some(next_body) = self.next.as_mut() {
-            next_body.move_to(start_x, start_y);
-        }
     }
 
     pub fn change_direction(&mut self, new_direction: Direction){
@@ -101,7 +70,6 @@ impl Snake{
             }
         }
     }
-
 }
 
 impl Display for Snake{

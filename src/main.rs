@@ -21,7 +21,6 @@ fn main() {
     loop{
         clear_terminal(&mut stdout);
         game.display(&mut stdout);
-        game.make_move();
         //executing command queue 
         stdout.flush().expect("Error while flushing stdout");
         thread::sleep(Duration::from_millis(TICK_DELAY_MS));

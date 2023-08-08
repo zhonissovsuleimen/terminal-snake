@@ -1,21 +1,20 @@
-use std::io::Stdout;
+use std::{io::Stdout, borrow::BorrowMut};
 use crossterm::{
     queue,
     style::Print,
     cursor::{SavePosition, RestorePosition, MoveTo}
 };
 use crate::snake::{
-    snake::Snake,
+    snake::{Snake, Display},
     food::Food,
 };
 
-use super::snake::Display;
 
 pub struct Game{
     pub max_width: u16,
     pub max_height: u16,
-    snake_pieces: Vec<Snake>,
-    food_pieces: Vec<Food>
+    pub snake_pieces: Vec<Snake>,
+    pub food_piece: Food
 }
 
 impl Game{
@@ -24,26 +23,26 @@ impl Game{
         //creating base snake
         let center_x = max_width/2;
         let center_y = max_height/2;
-        let head = Snake::new(center_x, center_y, max_width, max_height);
+        let mut snake_head = Snake::new(center_x, center_y, max_width, max_height);
+        let mut snake_body1 = Snake::new(center_x-1, center_y, max_width, max_height);
+        let mut snake_body2 = Snake::new(center_x-2, center_y, max_width, max_height);
+        
+        let mut snake_pieces = vec![snake_head, snake_body1, snake_body2];
 
-        let mut snake_vec = Vec::<Snake>::new();
-        snake_vec.push(head);
-
-        let mut food_vec = Vec::<Food>::new();
-        food_vec.push(Food::new(0,0));
+        let mut food = Food::new(0,0);
 
         Game{
             max_width: max_width,
             max_height: max_height,
-            snake_pieces: snake_vec,
-            food_pieces: food_vec
+            snake_pieces,
+            food_piece: food
         }
     }
 
     pub fn display(&self, stdout: &mut Stdout){
         queue!(stdout, SavePosition).expect("Error while saving cursor position");
 
-        //printing game border
+        //displaying game border
         //top bar
         Self::print_character(stdout, '+');
         for _ in 0..self.max_width{
@@ -69,21 +68,13 @@ impl Game{
         }
         Self::print_character(stdout, '+');
         
-        //adding food        
-        for piece in self.food_pieces.iter(){
-            queue!(stdout, RestorePosition).expect("Error while restoring position");
-            //moving cursor to food pos and adjusting for border 
-            queue!(stdout, MoveTo(piece.x + 1, piece.y + 1)).expect("Error while moving cursor");
-            piece.display(stdout);
-        }
+        //displaying food to console        
+        queue!(stdout, RestorePosition).expect("Error while restoring position");
+        queue!(stdout, MoveTo(self.food_piece.x + 1, self.food_piece.y + 1)).expect("Error while moving cursor");
+        self.food_piece.display(stdout);
 
-        //adding snake        
-        for piece in self.snake_pieces.iter(){
-            queue!(stdout, RestorePosition).expect("Error while restoring position");
-            //moving cursor to snake pos and adjusting for border 
-            queue!(stdout, MoveTo(piece.x + 1, piece.y + 1)).expect("Error while moving cursor");
-            piece.display(stdout);
-        }
+        //displaying snake to console
+        todo!();
     }
 
     fn print_character(stdout: &mut Stdout, character: char){
@@ -91,10 +82,5 @@ impl Game{
             stdout,
             Print(character)
         ).expect("Error while printing fill character");
-    }
-
-    pub fn make_move(&mut self){
-        //first snake piece is always head
-        self.snake_pieces[0].make_move();
     }
 } 
