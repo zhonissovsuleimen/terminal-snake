@@ -1,7 +1,7 @@
 #[derive(PartialEq, Clone, Copy)]
-pub enum Direction{
+pub enum Direction {
     Up,
     Right,
     Down,
-    Left
+    Left,
 }
