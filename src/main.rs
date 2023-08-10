@@ -5,7 +5,7 @@ use crossterm::{
     queue,
     terminal::{Clear, ClearType},
     cursor::{MoveTo, Hide},
-    event::{poll, read, Event, KeyCode, KeyEvent}
+    event::{poll, read, Event, KeyCode, KeyEvent, KeyEventKind}
 };
 
 
@@ -31,21 +31,29 @@ fn main() {
 
                 new_direction = match asd_event.into() {
                     Event::Key(KeyEvent{ 
-                        code: KeyCode::Up | KeyCode::Char('w'), .. }) => {
+                        code: KeyCode::Up | KeyCode::Char('w'), 
+                        kind: KeyEventKind::Press, 
+                        .. }) => {
                             Direction::Up
                     }
                     Event::Key(KeyEvent{ 
-                        code: KeyCode::Right | KeyCode::Char('d'), .. }) => {
+                        code: KeyCode::Right | KeyCode::Char('d'),
+                        kind: KeyEventKind::Press, 
+                        .. }) => {
                             Direction::Right
                     }
                     Event::Key(KeyEvent{ 
-                        code: KeyCode::Down | KeyCode::Char('s'), .. }) => {
+                        code: KeyCode::Down | KeyCode::Char('s'),
+                        kind: KeyEventKind::Press, 
+                        .. }) => {
                             Direction::Down
                         }
-                        Event::Key(KeyEvent{ 
-                            code: KeyCode::Left | KeyCode::Char('a'), .. }) => {
-                            Direction::Left
-                        }
+                    Event::Key(KeyEvent{ 
+                        code: KeyCode::Left | KeyCode::Char('a'),
+                        kind: KeyEventKind::Press, 
+                        .. }) => {
+                        Direction::Left
+                    }
                     _ => {new_direction}
                 };
                 timer -= 1;
