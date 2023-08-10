@@ -101,7 +101,13 @@ impl Game{
     }
 
     pub fn change_direction(&mut self, new_dir: Direction){
-        self.current_direction = new_dir;
+
+        match self.current_direction{
+            Direction::Up => if self.current_direction != Direction::Down { self.current_direction = new_dir; },
+            Direction::Right => if self.current_direction != Direction::Left { self.current_direction = new_dir; },
+            Direction::Down => if self.current_direction != Direction::Up { self.current_direction = new_dir; },
+            Direction::Left => if self.current_direction != Direction::Right { self.current_direction = new_dir; },
+        }
     }
 
     fn print_character(stdout: &mut Stdout, character: char){
