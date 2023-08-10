@@ -34,33 +34,7 @@ impl Game{
     }
 
     pub fn display(&self, stdout: &mut Stdout){
-
-        //displaying game border
-        //top bar
-        Self::print_character(stdout, '+');
-        for _ in 0..self.max_width{
-            Self::print_character(stdout, '-');
-        }
-        Self::print_character(stdout, '+');
-        Self::print_character(stdout, '\n');
-
-        //sides
-        for _ in 0..self.max_height{
-            Self::print_character(stdout, '|');
-            for _ in 0..self.max_width{
-                Self::print_character(stdout, ' ');
-            }
-            Self::print_character(stdout, '|');
-            Self::print_character(stdout, '\n');
-        }
-
-        //bottom bar
-        Self::print_character(stdout, '+');
-        for _ in 0..self.max_width{
-            Self::print_character(stdout, '-');
-        }
-        Self::print_character(stdout, '+');
-        
+        self.print_game_border(stdout);
         //displaying objects to console        
         for obj in &self.objects{
             Self::display_object(stdout, *obj);
@@ -101,13 +75,39 @@ impl Game{
     }
 
     pub fn change_direction(&mut self, new_dir: Direction){
-
         match self.current_direction{
             Direction::Up => if self.current_direction != Direction::Down { self.current_direction = new_dir; },
             Direction::Right => if self.current_direction != Direction::Left { self.current_direction = new_dir; },
             Direction::Down => if self.current_direction != Direction::Up { self.current_direction = new_dir; },
             Direction::Left => if self.current_direction != Direction::Right { self.current_direction = new_dir; },
         }
+    }
+
+    fn print_game_border(&self, stdout: &mut Stdout){
+        //top bar
+        Self::print_character(stdout, '+');
+        for _ in 0..self.max_width{
+            Self::print_character(stdout, '-');
+        }
+        Self::print_character(stdout, '+');
+        Self::print_character(stdout, '\n');
+
+        //sides
+        for _ in 0..self.max_height{
+            Self::print_character(stdout, '|');
+            for _ in 0..self.max_width{
+                Self::print_character(stdout, ' ');
+            }
+            Self::print_character(stdout, '|');
+            Self::print_character(stdout, '\n');
+        }
+
+        //bottom bar
+        Self::print_character(stdout, '+');
+        for _ in 0..self.max_width{
+            Self::print_character(stdout, '-');
+        }
+        Self::print_character(stdout, '+');
     }
 
     fn print_character(stdout: &mut Stdout, character: char){
