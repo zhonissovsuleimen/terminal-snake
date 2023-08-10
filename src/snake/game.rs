@@ -52,10 +52,10 @@ impl Game{
         }
 
         match self.current_direction{
-            Direction::Up => new_y = (new_y - 1) % self.max_height,
+            Direction::Up => new_y = new_y.wrapping_add(self.max_height - 1) % self.max_height,
             Direction::Right => new_x = (new_x + 1) % self.max_width,
             Direction::Down => new_y =(new_y + 1) % self.max_height,
-            Direction::Left => new_x = (new_x - 1) % self.max_width
+            Direction::Left => new_x = new_x.wrapping_add(self.max_width - 1) % self.max_width
         };
 
         for obj in self.objects.iter(){
