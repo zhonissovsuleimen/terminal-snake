@@ -1,9 +1,5 @@
 use super::{direction::Direction, game_object::GameObject};
-use crossterm::{
-    cursor::{MoveTo, RestorePosition, SavePosition},
-    queue,
-    style::Print,
-};
+use crossterm::{cursor::MoveTo, queue, style::Print};
 use rand::Rng;
 use std::io::Stdout;
 pub struct Game {
@@ -33,9 +29,7 @@ impl Game {
         }
     }
 
-    pub fn display(&self, stdout: &mut Stdout) {
-        self.print_game_border(stdout);
-        //displaying objects to console
+    pub fn print_objects(&self, stdout: &mut Stdout) {
         for obj in &self.objects {
             Self::display_object(stdout, *obj);
         }
@@ -95,8 +89,8 @@ impl Game {
     }
 
     pub fn respawn_food(&mut self) {
-        let mut new_x;
-        let mut new_y;
+        let new_x;
+        let new_y;
 
         //randomize until unoccupied position is found
         loop {
@@ -134,7 +128,7 @@ impl Game {
         self.objects.push(GameObject::Snake(x, y));
     }
 
-    fn print_game_border(&self, stdout: &mut Stdout) {
+    pub fn print_game_border(&self, stdout: &mut Stdout) {
         //top bar
         Self::print_character(stdout, '+');
         for _ in 0..self.max_width {
@@ -174,10 +168,11 @@ impl Game {
 
         match obj {
             GameObject::Snake(x, y) | GameObject::Food(x, y) => {
-                queue!(stdout, SavePosition).expect("Error while saving cursor position");
-                queue!(stdout, MoveTo(x + 1, y + 1), Print(character))
-                    .expect("Error occured while printing character");
-                queue!(stdout, RestorePosition).expect("Error while restoring cusror position");
+                queue!(
+                    stdout,
+                    MoveTo(x + 1, y + 1),
+                    Print(character),
+                ).expect("Error while restoring cusror position");
             }
         }
     }

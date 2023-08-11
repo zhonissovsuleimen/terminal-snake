@@ -13,19 +13,23 @@ use snake::{direction::Direction, game::Game};
 
 fn main() {
     let mut stdout = stdout();
-
+    const MAX_WIDTH: u16 = 40;
+    const MAX_HEIGHT: u16 = 23;
+    let game = &mut Game::new(MAX_WIDTH, MAX_HEIGHT);
+    let mut new_direction: Direction = Direction::Right;
     const TICK_MS: i32 = 125;
     let mut timer: i32 = TICK_MS;
-    let game = &mut Game::new(40, 23);
-    let mut new_direction: Direction = Direction::Right;
+
+    clear_terminal(&mut stdout);
     hide_cursor(&mut stdout);
+    game.print_game_border(&mut stdout);
     //game loop
     loop {
         match poll(Duration::from_millis(1)) {
             Ok(true) => {
-                let asd_event = read().unwrap();
+                let event = read().unwrap();
 
-                new_direction = match asd_event.into() {
+                new_direction = match event.into() {
                     Event::Key(KeyEvent {
                         code: KeyCode::Up | KeyCode::Char('w'),
                         kind: KeyEventKind::Press,
@@ -60,11 +64,11 @@ fn main() {
                 game.respawn_food();
                 game.grow();
             } else if game.collision_occured() {
-                game_over(&mut stdout);
+                game_over(&mut stdout, MAX_HEIGHT);
                 break;
             }
-            clear_terminal(&mut stdout);
-            game.display(&mut stdout);
+            clear_inside_border(&mut stdout, MAX_WIDTH, MAX_HEIGHT);
+            game.print_objects(&mut stdout);
             timer = TICK_MS;
         }
 
@@ -73,13 +77,32 @@ fn main() {
     }
 }
 
-fn game_over(stdout: &mut Stdout) {
-    queue!(stdout, Print("\nGame Over!")).expect("Error while printing game over");
+fn game_over(stdout: &mut Stdout, max_height: u16) {
+    queue!(
+        stdout, 
+        MoveTo(0, max_height + 1),
+        Print("\nGame Over!"),
+    ).expect("Error while printing game over");
 }
 
 fn clear_terminal(stdout: &mut Stdout) {
-    queue!(stdout, Clear(ClearType::FromCursorUp), MoveTo(0, 0))
-        .expect("Error while clearing the terminal");
+    queue!(
+        stdout,
+        Clear(ClearType::FromCursorUp),
+        MoveTo(0, 0)
+    ).expect("Error while clearing the terminal");
+}
+
+fn clear_inside_border(stdout: &mut Stdout, max_width: u16, max_height: u16) {
+    for y in 1..max_height + 1 {
+        for x in 1..max_width + 1 {
+            queue!(
+                stdout,
+                MoveTo(x, y),
+                Print(' ')
+            ).expect("Error clearing inside inside border");
+        }
+    }
 }
 
 fn hide_cursor(stdout: &mut Stdout) {
