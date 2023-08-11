@@ -101,10 +101,18 @@ impl Game {
             match obj {
                 GameObject::Food(_, _) => {
                     self.objects[i] = GameObject::Food(new_x, new_y);
+                    return;
                 }
                 _ => {}
             }
         }
+    }
+
+    pub fn grow(&mut self) {
+        //position of new snake body shouldn't matter,
+        //as it will be adjusted in next make_move() call
+        let (x, y) = self.get_snake_head_pos();
+        self.objects.push(GameObject::Snake(x, y));
     }
 
     fn print_game_border(&self, stdout: &mut Stdout) {
@@ -141,7 +149,7 @@ impl Game {
     fn display_object(stdout: &mut Stdout, obj: GameObject) {
         let character: char;
         match obj {
-            GameObject::Snake(_, _) => character = '\u{25a2}',
+            GameObject::Snake(_, _) => character = '\u{2588}',
             GameObject::Food(_, _) => character = '*',
         }
 

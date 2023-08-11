@@ -47,19 +47,18 @@ fn main() {
                     }) => Direction::Left,
                     _ => new_direction,
                 };
-                timer -= 1;
             }
-            _ => {
-                timer -= 1;
-            }
+            _ => {}
         }
 
+        timer -= 1;
         if timer < 0 {
             clear_terminal(&mut stdout);
             game.change_direction(new_direction);
             game.make_move();
             if game.consumption_occured() {
                 game.respawn_food();
+                game.grow();
             }
             game.display(&mut stdout);
             timer = TICK_MS;
