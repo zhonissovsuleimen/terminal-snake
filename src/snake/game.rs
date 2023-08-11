@@ -41,7 +41,6 @@ impl Game {
     }
 
     pub fn make_move(&mut self) {
-        let mut new_vec = Vec::<GameObject>::new();
         let mut new_x: u16 = 0;
         let mut new_y: u16 = 0;
 
@@ -57,20 +56,16 @@ impl Game {
             Direction::Left => new_x = new_x.wrapping_add(self.max_width - 1) % self.max_width,
         };
 
-        for obj in self.objects.iter() {
-            match obj {
+        for (i, test) in self.objects.clone().into_iter().enumerate() {
+            match test {
                 GameObject::Snake(x, y) => {
-                    new_vec.push(GameObject::Snake(new_x, new_y));
-                    new_x = *x;
-                    new_y = *y;
+                    self.objects[i] = GameObject::Snake(new_x, new_y);
+                    new_x = x;
+                    new_y = y
                 }
-                GameObject::Food(x, y) => {
-                    new_vec.push(GameObject::Food(*x, *y));
-                }
+                _ => {}
             }
         }
-
-        self.objects = new_vec;
     }
 
     pub fn change_direction(&mut self, new_dir: Direction) {
