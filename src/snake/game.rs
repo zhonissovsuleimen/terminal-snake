@@ -145,4 +145,32 @@ impl Game {
             }
         }
     }
+
+    pub fn consumption_occured(&self) -> bool {
+        self.get_food_pos() == self.get_snake_head_pos()
+    }
+
+    fn get_food_pos(&self) -> (u16, u16) {
+        for obj in self.objects.iter() {
+            match obj {
+                GameObject::Food(x, y) => {
+                    return (*x, *y);
+                }
+                _ => {}
+            }
+        }
+        (0, 0)
+    }
+
+    fn get_snake_head_pos(&self) -> (u16, u16) {
+        for obj in self.objects.iter() {
+            match obj {
+                GameObject::Snake(x, y) => {
+                    return (*x, *y);
+                }
+                _ => {}
+            }
+        }
+        (0, 0)
+    }
 }
