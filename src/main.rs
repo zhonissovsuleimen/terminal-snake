@@ -53,10 +53,14 @@ fn main() {
                 timer -= 1;
             }
         }
+
         if timer < 0 {
             clear_terminal(&mut stdout);
             game.change_direction(new_direction);
             game.make_move();
+            if game.consumption_occured() {
+                game.respawn_food();
+            }
             game.display(&mut stdout);
             timer = TICK_MS;
         }

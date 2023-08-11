@@ -4,6 +4,7 @@ use crossterm::{
     queue,
     style::Print,
 };
+use rand::Rng;
 use std::io::Stdout;
 pub struct Game {
     pub max_width: u16,
@@ -56,8 +57,8 @@ impl Game {
             Direction::Left => new_x = new_x.wrapping_add(self.max_width - 1) % self.max_width,
         };
 
-        for (i, test) in self.objects.clone().into_iter().enumerate() {
-            match test {
+        for (i, obj) in self.objects.clone().into_iter().enumerate() {
+            match obj {
                 GameObject::Snake(x, y) => {
                     self.objects[i] = GameObject::Snake(new_x, new_y);
                     new_x = x;
@@ -89,6 +90,19 @@ impl Game {
                 if new_dir != Direction::Right {
                     self.current_direction = new_dir;
                 }
+            }
+        }
+    }
+
+    pub fn respawn_food(&mut self) {
+        let new_x = rand::thread_rng().gen_range(0..self.max_width);
+        let new_y = rand::thread_rng().gen_range(0..self.max_height);
+        for (i, obj) in self.objects.clone().into_iter().enumerate() {
+            match obj {
+                GameObject::Food(_, _) => {
+                    self.objects[i] = GameObject::Food(new_x, new_y);
+                }
+                _ => {}
             }
         }
     }
