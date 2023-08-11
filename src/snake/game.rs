@@ -17,10 +17,12 @@ impl Game {
         let snake_head = GameObject::Snake(center_x, center_y);
         let snake_body1 = GameObject::Snake(center_x - 1, center_y);
         let snake_body2 = GameObject::Snake(center_x - 2, center_y);
+        let mut objects = vec![snake_head, snake_body1, snake_body2];
 
-        let food = GameObject::Food(0, 0);
-        let objects = vec![snake_head, snake_body1, snake_body2, food];
-
+        let (food_x, food_y) = Self::get_unoccupied_random_pos(&objects, max_width, max_height); 
+        let food = GameObject::Food(food_x, food_y);
+        objects.push(food);
+        
         Game {
             max_width: max_width,
             max_height: max_height,
@@ -89,26 +91,7 @@ impl Game {
     }
 
     pub fn respawn_food(&mut self) {
-        let new_x;
-        let new_y;
-
-        //randomize until unoccupied position is found
-        loop {
-            new_x = rand::thread_rng().gen_range(0..self.max_width);
-            new_y = rand::thread_rng().gen_range(0..self.max_height);
-
-            for obj in self.objects.clone().into_iter() {
-                match obj {
-                    GameObject::Snake(x, y) | GameObject::Food(x, y) => {
-                        if x == new_x && y == new_y {
-                            continue;
-                        }
-                    }
-                }
-            }
-            break;
-        }
-
+        let (new_x, new_y) = Self::get_unoccupied_random_pos(&self.objects, self.max_width, self.max_height);
         //swap food pos
         for (i, obj) in self.objects.clone().into_iter().enumerate() {
             match obj {
@@ -213,6 +196,27 @@ impl Game {
         (0, 0)
     }
 
+    fn get_unoccupied_random_pos(vec: &Vec<GameObject>, max_x: u16, max_y: u16) -> (u16, u16){
+        let new_x;
+        let new_y;
+
+        //randomize until unoccupied position is found
+        loop {
+            new_x = rand::thread_rng().gen_range(0..max_x);
+            new_y = rand::thread_rng().gen_range(0..max_y);
+
+            for obj in vec.into_iter() {
+                match obj {
+                    GameObject::Snake(x, y) | GameObject::Food(x, y) => {
+                        if *x == new_x && *y == new_y {
+                            continue;
+                        }
+                    }
+                }
+            }
+            return (new_x, new_y)
+        }
+    }
     fn get_snake_head_pos(&self) -> (u16, u16) {
         for obj in self.objects.iter() {
             match obj {
