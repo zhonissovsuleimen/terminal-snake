@@ -167,6 +167,24 @@ impl Game {
         self.get_food_pos() == self.get_snake_head_pos()
     }
 
+    pub fn collision_occured(&self) -> bool {
+        let (head_x, head_y) = self.get_snake_head_pos();
+
+        for (i, obj) in self.objects.clone().into_iter().enumerate(){
+            if i == 0 {continue;}
+            match obj{
+                GameObject::Snake(x, y) => {
+                    if head_x == x && head_y == y{
+                        return true
+                    }
+                }
+                _ => {}
+            }
+        }
+
+        false
+    }
+
     fn get_food_pos(&self) -> (u16, u16) {
         for obj in self.objects.iter() {
             match obj {

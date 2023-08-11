@@ -2,7 +2,8 @@ use crossterm::{
     cursor::{Hide, MoveTo},
     event::{poll, read, Event, KeyCode, KeyEvent, KeyEventKind},
     queue,
-    terminal::{Clear, ClearType},
+    terminal::{Clear, ClearType}, 
+    style::Print
 };
 use std::io::{stdout, Stdout, Write};
 use std::time::Duration;
@@ -53,13 +54,16 @@ fn main() {
 
         timer -= 1;
         if timer < 0 {
-            clear_terminal(&mut stdout);
             game.change_direction(new_direction);
             game.make_move();
             if game.consumption_occured() {
                 game.respawn_food();
                 game.grow();
+            }else if game.collision_occured() {
+                game_over(&mut stdout);
+                break;
             }
+            clear_terminal(&mut stdout);
             game.display(&mut stdout);
             timer = TICK_MS;
         }
@@ -67,6 +71,10 @@ fn main() {
         //executing command queue
         stdout.flush().expect("Error while flushing stdout");
     }
+}
+
+fn game_over(stdout: &mut Stdout){
+    queue!(stdout, Print("\nGame Over!")).expect("Error while printing game over");
 }
 
 fn clear_terminal(stdout: &mut Stdout) {
