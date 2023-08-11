@@ -2,8 +2,8 @@ use crossterm::{
     cursor::{Hide, MoveTo},
     event::{poll, read, Event, KeyCode, KeyEvent, KeyEventKind},
     queue,
-    terminal::{Clear, ClearType}, 
-    style::Print
+    style::Print,
+    terminal::{Clear, ClearType},
 };
 use std::io::{stdout, Stdout, Write};
 use std::time::Duration;
@@ -59,7 +59,7 @@ fn main() {
             if game.consumption_occured() {
                 game.respawn_food();
                 game.grow();
-            }else if game.collision_occured() {
+            } else if game.collision_occured() {
                 game_over(&mut stdout);
                 break;
             }
@@ -73,7 +73,7 @@ fn main() {
     }
 }
 
-fn game_over(stdout: &mut Stdout){
+fn game_over(stdout: &mut Stdout) {
     queue!(stdout, Print("\nGame Over!")).expect("Error while printing game over");
 }
 

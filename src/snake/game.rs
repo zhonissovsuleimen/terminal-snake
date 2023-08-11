@@ -95,8 +95,27 @@ impl Game {
     }
 
     pub fn respawn_food(&mut self) {
-        let new_x = rand::thread_rng().gen_range(0..self.max_width);
-        let new_y = rand::thread_rng().gen_range(0..self.max_height);
+        let mut new_x;
+        let mut new_y;
+
+        //randomize until unoccupied position is found
+        loop {
+            new_x = rand::thread_rng().gen_range(0..self.max_width);
+            new_y = rand::thread_rng().gen_range(0..self.max_height);
+
+            for obj in self.objects.clone().into_iter() {
+                match obj {
+                    GameObject::Snake(x, y) | GameObject::Food(x, y) => {
+                        if x == new_x && y == new_y {
+                            continue;
+                        }
+                    }
+                }
+            }
+            break;
+        }
+
+        //swap food pos
         for (i, obj) in self.objects.clone().into_iter().enumerate() {
             match obj {
                 GameObject::Food(_, _) => {
@@ -170,12 +189,14 @@ impl Game {
     pub fn collision_occured(&self) -> bool {
         let (head_x, head_y) = self.get_snake_head_pos();
 
-        for (i, obj) in self.objects.clone().into_iter().enumerate(){
-            if i == 0 {continue;}
-            match obj{
+        for (i, obj) in self.objects.clone().into_iter().enumerate() {
+            if i == 0 {
+                continue;
+            }
+            match obj {
                 GameObject::Snake(x, y) => {
-                    if head_x == x && head_y == y{
-                        return true
+                    if head_x == x && head_y == y {
+                        return true;
                     }
                 }
                 _ => {}
