@@ -14,14 +14,17 @@ impl Game {
         //creating base snake
         let center_x = max_width / 2;
         let center_y = max_height / 2;
+        let mut objects = vec![];
+        let (food_x, food_y) = Self::get_unoccupied_random_pos(&objects, max_width, max_height); 
+        let food = GameObject::Food(food_x, food_y);
         let snake_head = GameObject::Snake(center_x, center_y);
         let snake_body1 = GameObject::Snake(center_x - 1, center_y);
         let snake_body2 = GameObject::Snake(center_x - 2, center_y);
-        let mut objects = vec![snake_head, snake_body1, snake_body2];
-
-        let (food_x, food_y) = Self::get_unoccupied_random_pos(&objects, max_width, max_height); 
-        let food = GameObject::Food(food_x, food_y);
+        
         objects.push(food);
+        objects.push(snake_head);
+        objects.push(snake_body1);
+        objects.push(snake_body2);
         
         Game {
             max_width: max_width,
@@ -41,9 +44,10 @@ impl Game {
         let mut new_x: u16 = 0;
         let mut new_y: u16 = 0;
 
-        if let GameObject::Snake(x, y) = self.objects.get(0).unwrap() {
-            new_x = *x;
-            new_y = *y;
+        let (head_x, head_y) = self.get_snake_head_pos();
+        if let GameObject::Snake(x, y) = GameObject::Snake(head_x, head_y) {
+            new_x = x;
+            new_y = y;
         }
 
         match self.current_direction {
@@ -166,15 +170,17 @@ impl Game {
 
     pub fn collision_occured(&self) -> bool {
         let (head_x, head_y) = self.get_snake_head_pos();
+        let mut head_skipped:bool = false;
 
-        for (i, obj) in self.objects.clone().into_iter().enumerate() {
-            if i == 0 {
-                continue;
-            }
+        for obj in self.objects.clone().into_iter() {
             match obj {
                 GameObject::Snake(x, y) => {
                     if head_x == x && head_y == y {
-                        return true;
+                        if head_skipped {
+                            return true;
+                        }else {
+                            head_skipped = true;
+                        }
                     }
                 }
                 _ => {}
