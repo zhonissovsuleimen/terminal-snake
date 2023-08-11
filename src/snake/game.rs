@@ -190,6 +190,17 @@ impl Game {
         false
     }
 
+    pub fn win_occured(&self) -> bool {
+        let mut snake_len = 0;
+        for obj in self.objects.clone().into_iter(){
+            match obj{
+                GameObject::Snake(_, _) => { snake_len += 1; },
+                _ => {}
+            }
+        };
+        snake_len == self.max_width * self.max_height
+    }
+
     fn get_food_pos(&self) -> (u16, u16) {
         for obj in self.objects.iter() {
             match obj {

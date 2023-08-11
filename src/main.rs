@@ -63,6 +63,10 @@ fn main() {
             if game.consumption_occured() {
                 game.respawn_food();
                 game.grow();
+                if game.win_occured() {
+                    win(&mut stdout, MAX_HEIGHT);
+                    break;     
+                }
             } else if game.collision_occured() {
                 game_over(&mut stdout, MAX_HEIGHT);
                 break;
@@ -82,6 +86,14 @@ fn game_over(stdout: &mut Stdout, max_height: u16) {
         stdout, 
         MoveTo(0, max_height + 1),
         Print("\nGame Over!"),
+    ).expect("Error while printing game over");
+}
+
+fn win(stdout: &mut Stdout, max_height: u16) {
+    queue!(
+        stdout, 
+        MoveTo(0, max_height + 1),
+        Print("\nCongrats! Yow won!"),
     ).expect("Error while printing game over");
 }
 
