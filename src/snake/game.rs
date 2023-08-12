@@ -1,5 +1,5 @@
 use super::{direction::Direction, game_object::GameObject};
-use crossterm::{cursor::MoveTo, queue, style::Print};
+use crossterm::{cursor::MoveTo, queue, style::{Print, Color, ResetColor, SetForegroundColor}};
 use rand::Rng;
 use std::io::Stdout;
 pub struct Game {
@@ -35,8 +35,18 @@ impl Game {
     }
 
     pub fn print_objects(&self, stdout: &mut Stdout) {
-        for obj in &self.objects {
-            Self::display_object(stdout, *obj);
+        for (i, obj) in self.objects.iter().enumerate() {
+            let color = match i % 7 {
+                1 => Color::Red,
+                2 => Color::Yellow,
+                3 => Color::Green,
+                4 => Color::Cyan,
+                5 => Color::Blue,
+                6 => Color::Magenta,
+                _ => Color::White
+            };
+
+            Self::display_object(stdout, *obj, color);
         }
     }
 
@@ -96,7 +106,6 @@ impl Game {
 
     pub fn respawn_food(&mut self) {
         let (new_x, new_y) = Self::get_unoccupied_random_pos(&self.objects, self.max_width, self.max_height);
-        //swap food pos
         for (i, obj) in self.objects.clone().into_iter().enumerate() {
             match obj {
                 GameObject::Food(_, _) => {
@@ -146,7 +155,7 @@ impl Game {
         queue!(stdout, Print(character)).expect("Error while printing fill character");
     }
 
-    fn display_object(stdout: &mut Stdout, obj: GameObject) {
+    fn display_object(stdout: &mut Stdout, obj: GameObject, color: Color) {
         let character: char;
         match obj {
             GameObject::Snake(_, _) => character = '\u{2588}',
@@ -158,7 +167,9 @@ impl Game {
                 queue!(
                     stdout,
                     MoveTo(x + 1, y + 1),
+                    SetForegroundColor(color),
                     Print(character),
+                    ResetColor
                 ).expect("Error while restoring cusror position");
             }
         }
