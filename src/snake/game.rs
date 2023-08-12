@@ -225,11 +225,13 @@ impl Game {
     }
 
     fn get_unoccupied_random_pos(vec: &Vec<GameObject>, max_x: u16, max_y: u16) -> (u16, u16){
-        let new_x;
-        let new_y;
+        let mut found = false;
+        let mut new_x = 0;
+        let mut new_y = 0;
 
         //randomize until unoccupied position is found
-        loop {
+        while !found {
+            found = true;
             new_x = rand::thread_rng().gen_range(0..max_x);
             new_y = rand::thread_rng().gen_range(0..max_y);
 
@@ -237,13 +239,14 @@ impl Game {
                 match obj {
                     GameObject::Snake(x, y) | GameObject::Food(x, y) => {
                         if *x == new_x && *y == new_y {
-                            continue;
+                            found = false;
+                            break;
                         }
                     }
                 }
             }
-            return (new_x, new_y)
         }
+        return (new_x, new_y)
     }
     fn get_snake_head_pos(&self) -> (u16, u16) {
         for obj in self.objects.iter() {
