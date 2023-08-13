@@ -19,6 +19,7 @@ fn main() {
     let mut max_width = 20;
     let mut max_height = 11;
     let mut color_mode = ColorMode::Mono;
+    let mut terminal_refresh_time: i32 = 125;
 
     //argument parsing
     let arguments: Vec<String> = std::env::args().filter(|arg| arg.starts_with('-')).collect();
@@ -35,6 +36,12 @@ fn main() {
                 max_width = 40;
                 max_height = 23;
             }
+            "--slow" | "-s" => {
+                terminal_refresh_time = 220;
+            }
+            "--fast" | "-f" => {
+                terminal_refresh_time = 60;
+            }
             _ => panic!("Invalid argument(s)!")
         }    
     }
@@ -49,8 +56,7 @@ fn main() {
     //additional variabless
     let mut stdout = stdout();
     let mut new_direction: Direction = Direction::Right;
-    const TICK_MS: i32 = 125;
-    let mut timer: i32 = TICK_MS;
+    let mut timer: i32 = terminal_refresh_time;
 
     clear_terminal(&mut stdout);
     hide_cursor(&mut stdout);
@@ -84,7 +90,7 @@ fn main() {
             }
             clear_inside_border(&mut stdout, settings.max_width, settings.max_height);
             game.print_objects(&mut stdout);
-            timer = TICK_MS;
+            timer = terminal_refresh_time;
         }
 
         //executing command queue
