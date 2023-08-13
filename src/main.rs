@@ -3,7 +3,7 @@ use crossterm::{
     event::{poll, read, Event, KeyCode, KeyEvent, KeyEventKind},
     queue,
     style::Print,
-    terminal::{Clear, ClearType},
+    terminal::{Clear, ClearType, SetTitle},
 };
 use std::io::{stdout, Stdout, Write};
 use std::time::Duration;
@@ -58,8 +58,7 @@ fn main() {
     let mut new_direction: Direction = Direction::Right;
     let mut timer: i32 = terminal_refresh_time;
 
-    clear_terminal(&mut stdout);
-    hide_cursor(&mut stdout);
+    prepare_terminal(&mut stdout);
     game.print_game_border(&mut stdout);
     //game loop
     loop {
@@ -162,4 +161,10 @@ fn parse_input(event: Event) -> Option<Direction> {
         }) => Some(Direction::Left),
         _ => None,
     }
+}
+
+fn prepare_terminal(stdout: &mut Stdout){
+    queue!(stdout, SetTitle("Snake in terminal")).expect("Error while setting terminal title");
+    clear_terminal(stdout);
+    hide_cursor(stdout);
 }
