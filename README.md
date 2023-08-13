@@ -22,17 +22,14 @@ cd terminal-snake
 cargo run
 ``
 
-## Building a Standalone Executable
+## Running a Standalone Executable
 If you want to share the game as a standalone executable, you can build it using Cargo.
 
-1. Build the executable:
-``
-cargo build --release
-``
+1. Downlaod an executable from a <a href="https://github.com/zhonissovsuleimen/terminal-snake/releases">latest release</a>.
 
-2. Run the executable located in the target/release directory. You can also run it directly from the terminal:
+2. Run the executable directory directly. You can also run it from the terminal:
 ``
-.\target\release\snake-game.exe
+.\terminal-snake.exe
 ``
 
 # Command-line Options
