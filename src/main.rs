@@ -13,8 +13,8 @@ use snake::{direction::Direction, game::Game, game_settings::GameSettings};
 mod modes;
 use modes::color_mode::ColorMode;
 
-
 fn main() {
+    let mut stdout = stdout();
     //default settings
     let mut max_width = 20;
     let mut max_height = 11;
@@ -22,12 +22,18 @@ fn main() {
     let mut terminal_refresh_time: i32 = 125;
 
     //argument parsing
-    let arguments: Vec<String> = std::env::args().filter(|arg| arg.starts_with('-')).collect();
-    for mut arg in arguments{
-        match arg.as_str(){
+    let arguments: Vec<String> = std::env::args()
+        .filter(|arg| arg.starts_with('-'))
+        .collect();
+    for arg in arguments {
+        match arg.as_str() {
+            "--help" | "-h" => {
+                print_help(&mut stdout);
+                return;
+            }
             "--multi" | "-m" => {
                 color_mode = ColorMode::Multi;
-            },
+            }
             "--small" | "-S" => {
                 max_width = 10;
                 max_height = 6;
@@ -42,19 +48,18 @@ fn main() {
             "--fast" | "-f" => {
                 terminal_refresh_time = 60;
             }
-            _ => panic!("Invalid argument(s)!")
-        }    
+            _ => panic!("Invalid argument(s)!"),
+        }
     }
 
-    let settings = GameSettings{
+    let settings = GameSettings {
         max_width: max_width,
         max_height: max_height,
-        color_mode: color_mode
+        color_mode: color_mode,
     };
     let game = &mut Game::new(settings);
-    
+
     //additional variabless
-    let mut stdout = stdout();
     let mut new_direction: Direction = Direction::Right;
     let mut timer: i32 = terminal_refresh_time;
 
@@ -81,7 +86,7 @@ fn main() {
                 game.grow();
                 if game.win_occured() {
                     win(&mut stdout, settings.max_height);
-                    break;     
+                    break;
                 }
             } else if game.collision_occured() {
                 game_over(&mut stdout, settings.max_height);
@@ -98,37 +103,27 @@ fn main() {
 }
 
 fn game_over(stdout: &mut Stdout, skip_lines: u16) {
-    queue!(
-        stdout, 
-        MoveTo(0, skip_lines + 1),
-        Print("\nGame Over!"),
-    ).expect("Error while printing game over");
+    queue!(stdout, MoveTo(0, skip_lines + 1), Print("\nGame Over!"),)
+        .expect("Error while printing game over");
 }
 
 fn win(stdout: &mut Stdout, skip_lines: u16) {
     queue!(
-        stdout, 
+        stdout,
         MoveTo(0, skip_lines + 1),
         Print("\nCongrats! Yow won!"),
-    ).expect("Error while printing game over");
+    )
+    .expect("Error while printing game over");
 }
 
 fn clear_terminal(stdout: &mut Stdout) {
-    queue!(
-        stdout,
-        Clear(ClearType::All),
-        MoveTo(0, 0)
-    ).expect("Error while clearing the terminal");
+    queue!(stdout, Clear(ClearType::All), MoveTo(0, 0)).expect("Error while clearing the terminal");
 }
 
 fn clear_inside_border(stdout: &mut Stdout, max_width: u16, max_height: u16) {
     for y in 1..max_height + 1 {
         for x in 1..max_width + 1 {
-            queue!(
-                stdout,
-                MoveTo(x, y),
-                Print(' ')
-            ).expect("Error clearing inside inside border");
+            queue!(stdout, MoveTo(x, y), Print(' ')).expect("Error clearing inside inside border");
         }
     }
 }
@@ -163,8 +158,20 @@ fn parse_input(event: Event) -> Option<Direction> {
     }
 }
 
-fn prepare_terminal(stdout: &mut Stdout){
+fn prepare_terminal(stdout: &mut Stdout) {
     queue!(stdout, SetTitle("Snake in terminal")).expect("Error while setting terminal title");
     clear_terminal(stdout);
     hide_cursor(stdout);
+}
+
+fn print_help(stdout: &mut Stdout) {
+    queue!(stdout, Print
+    ("Snake Terminal Help:\nUsage: snake-game [OPTIONS]\n\nOptions:
+    -h, --help      Show this help message and exit
+    -m, --multi     Enable multi-color mode
+    -S, --small     Set small game board
+    -H, --huge      Set huge game board
+    -s, --slow      Set slow snake speed
+    -f, --fast      Set fast snake speed"
+    )).expect("Error while printing help message");
 }

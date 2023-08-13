@@ -1,6 +1,10 @@
 use super::{direction::Direction, game_object::GameObject, game_settings::GameSettings};
 use crate::modes::color_mode::ColorMode;
-use crossterm::{cursor::MoveTo, queue, style::{Print, Color, ResetColor, SetForegroundColor}};
+use crossterm::{
+    cursor::MoveTo,
+    queue,
+    style::{Color, Print, ResetColor, SetForegroundColor},
+};
 use rand::Rng;
 use std::io::Stdout;
 pub struct Game {
@@ -15,14 +19,15 @@ impl Game {
         let center_x = settings.max_width / 2;
         let center_y = settings.max_height / 2;
         let mut objects = vec![];
-        let (food_x, food_y) = Self::get_unoccupied_random_pos(&objects, settings.max_width, settings.max_height); 
+        let (food_x, food_y) =
+            Self::get_unoccupied_random_pos(&objects, settings.max_width, settings.max_height);
         let food = GameObject::Food(food_x, food_y);
         let snake_head = GameObject::Snake(center_x, center_y);
         let snake_body1 = GameObject::Snake(center_x - 1, center_y);
         let snake_body2 = GameObject::Snake(center_x - 2, center_y);
-        
+
         objects = vec![food, snake_head, snake_body1, snake_body2];
-        
+
         Game {
             settings: settings,
             current_direction: Direction::Right,
@@ -34,17 +39,15 @@ impl Game {
         for (i, obj) in self.objects.iter().enumerate() {
             let color = match self.settings.color_mode {
                 ColorMode::Mono => Color::White,
-                ColorMode::Multi => {
-                    match i % 7 {
-                        1 => Color::Red,
-                        2 => Color::Yellow,
-                        3 => Color::Green,
-                        4 => Color::Cyan,
-                        5 => Color::Blue,
-                        6 => Color::Magenta,
-                        _ => Color::White
-                    }
-                }
+                ColorMode::Multi => match i % 7 {
+                    1 => Color::Red,
+                    2 => Color::Yellow,
+                    3 => Color::Green,
+                    4 => Color::Cyan,
+                    5 => Color::Blue,
+                    6 => Color::Magenta,
+                    _ => Color::White,
+                },
             };
 
             Self::display_object(stdout, *obj, color);
@@ -62,10 +65,14 @@ impl Game {
         }
 
         match self.current_direction {
-            Direction::Up => new_y = new_y.wrapping_add(self.settings.max_height - 1) % self.settings.max_height,
+            Direction::Up => {
+                new_y = new_y.wrapping_add(self.settings.max_height - 1) % self.settings.max_height
+            }
             Direction::Right => new_x = (new_x + 1) % self.settings.max_width,
             Direction::Down => new_y = (new_y + 1) % self.settings.max_height,
-            Direction::Left => new_x = new_x.wrapping_add(self.settings.max_width - 1) % self.settings.max_width,
+            Direction::Left => {
+                new_x = new_x.wrapping_add(self.settings.max_width - 1) % self.settings.max_width
+            }
         };
 
         for (i, obj) in self.objects.clone().into_iter().enumerate() {
@@ -106,7 +113,11 @@ impl Game {
     }
 
     pub fn respawn_food(&mut self) {
-        let (new_x, new_y) = Self::get_unoccupied_random_pos(&self.objects, self.settings.max_width, self.settings.max_height);
+        let (new_x, new_y) = Self::get_unoccupied_random_pos(
+            &self.objects,
+            self.settings.max_width,
+            self.settings.max_height,
+        );
         for (i, obj) in self.objects.clone().into_iter().enumerate() {
             match obj {
                 GameObject::Food(_, _) => {
@@ -171,7 +182,8 @@ impl Game {
                     SetForegroundColor(color),
                     Print(character),
                     ResetColor
-                ).expect("Error while restoring cusror position");
+                )
+                .expect("Error while restoring cusror position");
             }
         }
     }
@@ -182,7 +194,7 @@ impl Game {
 
     pub fn collision_occured(&self) -> bool {
         let (head_x, head_y) = self.get_snake_head_pos();
-        let mut head_skipped:bool = false;
+        let mut head_skipped: bool = false;
 
         for obj in self.objects.clone().into_iter() {
             match obj {
@@ -190,7 +202,7 @@ impl Game {
                     if head_x == x && head_y == y {
                         if head_skipped {
                             return true;
-                        }else {
+                        } else {
                             head_skipped = true;
                         }
                     }
@@ -204,12 +216,14 @@ impl Game {
 
     pub fn win_occured(&self) -> bool {
         let mut snake_len = 0;
-        for obj in self.objects.clone().into_iter(){
-            match obj{
-                GameObject::Snake(_, _) => { snake_len += 1; },
+        for obj in self.objects.clone().into_iter() {
+            match obj {
+                GameObject::Snake(_, _) => {
+                    snake_len += 1;
+                }
                 _ => {}
             }
-        };
+        }
         snake_len == self.settings.max_width * self.settings.max_height
     }
 
@@ -225,7 +239,7 @@ impl Game {
         (0, 0)
     }
 
-    fn get_unoccupied_random_pos(vec: &Vec<GameObject>, max_x: u16, max_y: u16) -> (u16, u16){
+    fn get_unoccupied_random_pos(vec: &Vec<GameObject>, max_x: u16, max_y: u16) -> (u16, u16) {
         let mut found = false;
         let mut new_x = 0;
         let mut new_y = 0;
@@ -247,7 +261,7 @@ impl Game {
                 }
             }
         }
-        return (new_x, new_y)
+        return (new_x, new_y);
     }
     fn get_snake_head_pos(&self) -> (u16, u16) {
         for obj in self.objects.iter() {
