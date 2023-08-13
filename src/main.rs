@@ -16,8 +16,8 @@ use modes::color_mode::ColorMode;
 
 fn main() {
     //default settings
-    let mut max_width = 40;
-    let mut max_height = 23;
+    let mut max_width = 20;
+    let mut max_height = 11;
     let mut color_mode = ColorMode::Mono;
 
     //argument parsing
@@ -26,6 +26,14 @@ fn main() {
         match arg.as_str(){
             "--multi" | "-m" => {
                 color_mode = ColorMode::Multi;
+            },
+            "--small" | "-S" => {
+                max_width = 10;
+                max_height = 6;
+            }
+            "--huge" | "-H" => {
+                max_width = 40;
+                max_height = 23;
             }
             _ => panic!("Invalid argument(s)!")
         }    
