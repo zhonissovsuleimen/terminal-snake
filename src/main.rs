@@ -117,7 +117,7 @@ fn win(stdout: &mut Stdout, skip_lines: u16) {
 fn clear_terminal(stdout: &mut Stdout) {
     queue!(
         stdout,
-        Clear(ClearType::FromCursorUp),
+        Clear(ClearType::All),
         MoveTo(0, 0)
     ).expect("Error while clearing the terminal");
 }
