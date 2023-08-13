@@ -1,34 +1,30 @@
-use super::{direction::Direction, game_object::GameObject};
+use super::{direction::Direction, game_object::GameObject, game_settings::GameSettings};
+use crate::modes::color_mode::ColorMode;
 use crossterm::{cursor::MoveTo, queue, style::{Print, Color, ResetColor, SetForegroundColor}};
 use rand::Rng;
 use std::io::Stdout;
 pub struct Game {
-    pub max_width: u16,
-    pub max_height: u16,
+    settings: GameSettings,
     current_direction: Direction,
     pub objects: Vec<GameObject>,
 }
 
 impl Game {
-    pub fn new(max_width: u16, max_height: u16) -> Game {
-        //creating base snake
-        let center_x = max_width / 2;
-        let center_y = max_height / 2;
+    pub fn new(settings: GameSettings) -> Game {
+        //creating base conditions
+        let center_x = settings.max_width / 2;
+        let center_y = settings.max_height / 2;
         let mut objects = vec![];
-        let (food_x, food_y) = Self::get_unoccupied_random_pos(&objects, max_width, max_height); 
+        let (food_x, food_y) = Self::get_unoccupied_random_pos(&objects, settings.max_width, settings.max_height); 
         let food = GameObject::Food(food_x, food_y);
         let snake_head = GameObject::Snake(center_x, center_y);
         let snake_body1 = GameObject::Snake(center_x - 1, center_y);
         let snake_body2 = GameObject::Snake(center_x - 2, center_y);
         
-        objects.push(food);
-        objects.push(snake_head);
-        objects.push(snake_body1);
-        objects.push(snake_body2);
+        objects = vec![food, snake_head, snake_body1, snake_body2];
         
         Game {
-            max_width: max_width,
-            max_height: max_height,
+            settings: settings,
             current_direction: Direction::Right,
             objects: objects,
         }
@@ -36,14 +32,19 @@ impl Game {
 
     pub fn print_objects(&self, stdout: &mut Stdout) {
         for (i, obj) in self.objects.iter().enumerate() {
-            let color = match i % 7 {
-                1 => Color::Red,
-                2 => Color::Yellow,
-                3 => Color::Green,
-                4 => Color::Cyan,
-                5 => Color::Blue,
-                6 => Color::Magenta,
-                _ => Color::White
+            let color = match self.settings.color_mode {
+                ColorMode::Mono => Color::White,
+                ColorMode::Multi => {
+                    match i % 7 {
+                        1 => Color::Red,
+                        2 => Color::Yellow,
+                        3 => Color::Green,
+                        4 => Color::Cyan,
+                        5 => Color::Blue,
+                        6 => Color::Magenta,
+                        _ => Color::White
+                    }
+                }
             };
 
             Self::display_object(stdout, *obj, color);
@@ -61,10 +62,10 @@ impl Game {
         }
 
         match self.current_direction {
-            Direction::Up => new_y = new_y.wrapping_add(self.max_height - 1) % self.max_height,
-            Direction::Right => new_x = (new_x + 1) % self.max_width,
-            Direction::Down => new_y = (new_y + 1) % self.max_height,
-            Direction::Left => new_x = new_x.wrapping_add(self.max_width - 1) % self.max_width,
+            Direction::Up => new_y = new_y.wrapping_add(self.settings.max_height - 1) % self.settings.max_height,
+            Direction::Right => new_x = (new_x + 1) % self.settings.max_width,
+            Direction::Down => new_y = (new_y + 1) % self.settings.max_height,
+            Direction::Left => new_x = new_x.wrapping_add(self.settings.max_width - 1) % self.settings.max_width,
         };
 
         for (i, obj) in self.objects.clone().into_iter().enumerate() {
@@ -105,7 +106,7 @@ impl Game {
     }
 
     pub fn respawn_food(&mut self) {
-        let (new_x, new_y) = Self::get_unoccupied_random_pos(&self.objects, self.max_width, self.max_height);
+        let (new_x, new_y) = Self::get_unoccupied_random_pos(&self.objects, self.settings.max_width, self.settings.max_height);
         for (i, obj) in self.objects.clone().into_iter().enumerate() {
             match obj {
                 GameObject::Food(_, _) => {
@@ -127,16 +128,16 @@ impl Game {
     pub fn print_game_border(&self, stdout: &mut Stdout) {
         //top bar
         Self::print_character(stdout, '+');
-        for _ in 0..self.max_width {
+        for _ in 0..self.settings.max_width {
             Self::print_character(stdout, '-');
         }
         Self::print_character(stdout, '+');
         Self::print_character(stdout, '\n');
 
         //sides
-        for _ in 0..self.max_height {
+        for _ in 0..self.settings.max_height {
             Self::print_character(stdout, '|');
-            for _ in 0..self.max_width {
+            for _ in 0..self.settings.max_width {
                 Self::print_character(stdout, ' ');
             }
             Self::print_character(stdout, '|');
@@ -145,7 +146,7 @@ impl Game {
 
         //bottom bar
         Self::print_character(stdout, '+');
-        for _ in 0..self.max_width {
+        for _ in 0..self.settings.max_width {
             Self::print_character(stdout, '-');
         }
         Self::print_character(stdout, '+');
@@ -209,7 +210,7 @@ impl Game {
                 _ => {}
             }
         };
-        snake_len == self.max_width * self.max_height
+        snake_len == self.settings.max_width * self.settings.max_height
     }
 
     fn get_food_pos(&self) -> (u16, u16) {

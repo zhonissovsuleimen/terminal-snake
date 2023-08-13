@@ -9,13 +9,37 @@ use std::io::{stdout, Stdout, Write};
 use std::time::Duration;
 
 mod snake;
-use snake::{direction::Direction, game::Game};
+use snake::{direction::Direction, game::Game, game_settings::GameSettings};
+mod modes;
+use modes::color_mode::ColorMode;
+
 
 fn main() {
+    //default settings
+    let mut max_width = 40;
+    let mut max_height = 23;
+    let mut color_mode = ColorMode::Mono;
+
+    //argument parsing
+    let arguments: Vec<String> = std::env::args().filter(|arg| arg.starts_with('-')).collect();
+    for mut arg in arguments{
+        match arg.as_str(){
+            "--multi" | "-m" => {
+                color_mode = ColorMode::Multi;
+            }
+            _ => panic!("Invalid argument(s)!")
+        }    
+    }
+
+    let settings = GameSettings{
+        max_width: max_width,
+        max_height: max_height,
+        color_mode: color_mode
+    };
+    let game = &mut Game::new(settings);
+    
+    //additional variabless
     let mut stdout = stdout();
-    const MAX_WIDTH: u16 = 40;
-    const MAX_HEIGHT: u16 = 23;
-    let game = &mut Game::new(MAX_WIDTH, MAX_HEIGHT);
     let mut new_direction: Direction = Direction::Right;
     const TICK_MS: i32 = 125;
     let mut timer: i32 = TICK_MS;
@@ -28,30 +52,9 @@ fn main() {
         match poll(Duration::from_millis(1)) {
             Ok(true) => {
                 let event = read().unwrap();
-
-                new_direction = match event.into() {
-                    Event::Key(KeyEvent {
-                        code: KeyCode::Up | KeyCode::Char('w'),
-                        kind: KeyEventKind::Press,
-                        ..
-                    }) => Direction::Up,
-                    Event::Key(KeyEvent {
-                        code: KeyCode::Right | KeyCode::Char('d'),
-                        kind: KeyEventKind::Press,
-                        ..
-                    }) => Direction::Right,
-                    Event::Key(KeyEvent {
-                        code: KeyCode::Down | KeyCode::Char('s'),
-                        kind: KeyEventKind::Press,
-                        ..
-                    }) => Direction::Down,
-                    Event::Key(KeyEvent {
-                        code: KeyCode::Left | KeyCode::Char('a'),
-                        kind: KeyEventKind::Press,
-                        ..
-                    }) => Direction::Left,
-                    _ => new_direction,
-                };
+                if let Some(from_input) = parse_input(event) {
+                    new_direction = from_input;
+                }
             }
             _ => {}
         }
@@ -64,14 +67,14 @@ fn main() {
                 game.respawn_food();
                 game.grow();
                 if game.win_occured() {
-                    win(&mut stdout, MAX_HEIGHT);
+                    win(&mut stdout, settings.max_height);
                     break;     
                 }
             } else if game.collision_occured() {
-                game_over(&mut stdout, MAX_HEIGHT);
+                game_over(&mut stdout, settings.max_height);
                 break;
             }
-            clear_inside_border(&mut stdout, MAX_WIDTH, MAX_HEIGHT);
+            clear_inside_border(&mut stdout, settings.max_width, settings.max_height);
             game.print_objects(&mut stdout);
             timer = TICK_MS;
         }
@@ -81,18 +84,18 @@ fn main() {
     }
 }
 
-fn game_over(stdout: &mut Stdout, max_height: u16) {
+fn game_over(stdout: &mut Stdout, skip_lines: u16) {
     queue!(
         stdout, 
-        MoveTo(0, max_height + 1),
+        MoveTo(0, skip_lines + 1),
         Print("\nGame Over!"),
     ).expect("Error while printing game over");
 }
 
-fn win(stdout: &mut Stdout, max_height: u16) {
+fn win(stdout: &mut Stdout, skip_lines: u16) {
     queue!(
         stdout, 
-        MoveTo(0, max_height + 1),
+        MoveTo(0, skip_lines + 1),
         Print("\nCongrats! Yow won!"),
     ).expect("Error while printing game over");
 }
@@ -119,4 +122,30 @@ fn clear_inside_border(stdout: &mut Stdout, max_width: u16, max_height: u16) {
 
 fn hide_cursor(stdout: &mut Stdout) {
     queue!(stdout, Hide).expect("Error while hiding cursor");
+}
+
+fn parse_input(event: Event) -> Option<Direction> {
+    match event.into() {
+        Event::Key(KeyEvent {
+            code: KeyCode::Up | KeyCode::Char('w'),
+            kind: KeyEventKind::Press,
+            ..
+        }) => Some(Direction::Up),
+        Event::Key(KeyEvent {
+            code: KeyCode::Right | KeyCode::Char('d'),
+            kind: KeyEventKind::Press,
+            ..
+        }) => Some(Direction::Right),
+        Event::Key(KeyEvent {
+            code: KeyCode::Down | KeyCode::Char('s'),
+            kind: KeyEventKind::Press,
+            ..
+        }) => Some(Direction::Down),
+        Event::Key(KeyEvent {
+            code: KeyCode::Left | KeyCode::Char('a'),
+            kind: KeyEventKind::Press,
+            ..
+        }) => Some(Direction::Left),
+        _ => None,
+    }
 }
