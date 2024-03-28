@@ -34,10 +34,10 @@ If you want to share the game as a standalone executable, you can build it using
 
 # Command-line Options
 ```
-**-h** or **--help**      Show this help message and exit
-**-m** or **--multi**     Enable multi-color mode
-**-S** or **--small**     Set small game board
-**-H** or **--huge**      Set huge game board
-**-s** or **--slow**      Set slow snake speed
-**-f** or **--fast**      Set fast snake speed
+-h or --help      Show this help message and exit
+-m or --multi     Enable multi-color mode
+-S or --small     Set small game board
+-H or --huge      Set huge game board
+-s or --slow      Set slow snake speed
+-f or --fast      Set fast snake speed
 ```
